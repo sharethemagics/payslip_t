@@ -12,17 +12,156 @@ public class Employee {
     @Id
     private BigInteger _id;
 
-    @Field(value = "empId")
+    @Field(value = "empno")
     private String empId;
 
-    @Field(value = "empName")
+    @Field(value = "EmpName")
     private String empName;
 
-    @Field(value = "firstName")
-    private String firstName;
+    @Field(value = "Designation")
+    private String desgination;
 
-    @Field(value = "lastName")
-    private String lastName;
+    @Field(value = "DOB")
+    private String dob;
+
+    public String getDoj() {
+        return doj;
+    }
+
+    public void setDoj(String doj) {
+        this.doj = doj;
+    }
+
+    @Field(value = "DOJ")
+    private String doj;
+
+    @Field(value = "PAN")
+    private String panno;
+
+    public String getPanno() {
+        return panno;
+    }
+
+    public void setPanno(String panno) {
+        this.panno = panno;
+    }
+
+    public String getUan() {
+        return uan;
+    }
+
+    public void setUan(String uan) {
+        this.uan = uan;
+    }
+
+    public String getEsi() {
+        return esi;
+    }
+
+    public void setEsi(String esi) {
+        this.esi = esi;
+    }
+
+    public String getAadhaar() {
+        return aadhaar;
+    }
+
+    public void setAadhaar(String aadhaar) {
+        this.aadhaar = aadhaar;
+    }
+
+    @Field(value = "UAN")
+    private String uan;
+
+    @Field(value = "ESI")
+    private String esi;
+
+    @Field(value = "AADHAAR")
+    private String aadhaar;
+
+    @Field(value = "bankname")
+    private String bankname;
+
+    @Field(value = "accnumber")
+    private String accnum;
+
+    @Field(value = "branch")
+    private String branch;
+
+    public String getFathername() {
+        return fathername;
+    }
+
+    public void setFathername(String fathername) {
+        this.fathername = fathername;
+    }
+
+    @Field(value = "fathername")
+    private String fathername;
+
+    public String getBankname() {
+        return bankname;
+    }
+
+    public void setBankname(String bankname) {
+        this.bankname = bankname;
+    }
+
+    public String getAccnum() {
+        return accnum;
+    }
+
+    public void setAccnum(String accnum) {
+        this.accnum = accnum;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
+    public String getPaidate() {
+        return paidate;
+    }
+
+    public void setPaidate(String paidate) {
+        this.paidate = paidate;
+    }
+
+    public String getPymt_Mode() {
+        return pymt_Mode;
+    }
+
+    public void setPymt_Mode(String pymt_Mode) {
+        this.pymt_Mode = pymt_Mode;
+    }
+
+    @Field(value = "paiddate")
+    private String paidate;
+
+    @Field(value = "modeofpymt")
+    private String pymt_Mode;
+
+    public String getDesgination() {
+        return desgination;
+    }
+
+    public void setDesgination(String desgination) {
+        this.desgination = desgination;
+    }
+
+    public String getDob() {
+        return dob;
+    }
+
+    public void setDob(String dob) {
+        this.dob = dob;
+    }
+
+
 
     public String getEmpId() {
         return empId;
@@ -48,21 +187,6 @@ public class Employee {
         this.empName = empName;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
 
 
     @Override
