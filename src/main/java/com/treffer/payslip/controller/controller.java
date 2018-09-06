@@ -12,6 +12,7 @@ import com.treffer.payslip.to.Employee;
 import com.treffer.payslip.to.Payroll_details;
 import com.treffer.payslip.to.tempTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
@@ -48,6 +48,7 @@ public class controller {
 
     @Autowired
     private PayrollRepository payrollRepository;
+
     {
         try {
             fontReg = BaseFont.createFont(FONT, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
@@ -55,7 +56,7 @@ public class controller {
             fontContent = new Font(fontReg, 10);
             fontTableHdr = new Font(fontBold, 9, Font.BOLD, BaseColor.WHITE);
             fontTableSideHdr = new Font(fontBold, 9, Font.BOLD, BaseColor.BLACK);
-            fontTableHeading =  new Font(fontBold, 12, Font.BOLD, BaseColor.BLACK);
+            fontTableHeading = new Font(fontBold, 12, Font.BOLD, BaseColor.BLACK);
             lightGray = WebColors.getRGBColor("#F5F5F5");
             white = WebColors.getRGBColor("#ffffff");
             red = WebColors.getRGBColor("#EF5350");
@@ -144,132 +145,20 @@ public class controller {
 
 
     @RequestMapping("/greeting")
-    public String greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
+    public String greeting(@RequestParam(required=false,name="days",defaultValue="30") String workDays) {
 
-
-        List<Employee> emp = this.employeeRepository.findAll();
-        /*emp.forEach(ee-> {
-            System.out.print(ee.getEmpName());
-        });
-*/
         String pdfName;
-
-
-
-        Payroll_details payroll_details = new Payroll_details();
-        payroll_details = this.payrollRepository.findByEmpId("TREF / 001 / 2016");
-        System.out.println(payroll_details.getEmpId() + " test ");
-
-       ArrayList<tempTO> earning;
-       ArrayList<tempTO> ded ;
-       ArrayList<tempTO> bene ;
-
-          /*  Employee test;
-            test = this.employeeRepository.findByEmpId("TREF / 001 / 2016");
-            System.out.println(test);*/
-
-        //employees.forEach(employee -> System.out.println(employee.getEmpName()));
+        Payroll_details payroll_details;
+        ArrayList<tempTO> earning;
+        ArrayList<tempTO> ded;
+        ArrayList<tempTO> bene;
 
         try {
+
             for (Employee employee : this.employeeRepository.findAll()) {
-              /*  earning = new ArrayList<>();
-                ded = new ArrayList<>();
-                bene = new ArrayList<>();
-                tempTO temp = new tempTO();*/
                 pdfName = employee.getEmpName();
                 payroll_details = this.payrollRepository.findByEmpId(employee.getEmpId());
-
-                // New code added
-
-                LinkedHashMap <String,Double> fixedPayDtls= new LinkedHashMap <String,Double>();
-                HashMap<String, Double> earningsmap = new HashMap<String, Double>();
-
-                if(payroll_details.getBasicpay() !=null && payroll_details.getBasicpay() >0.0)
-                {
-                    fixedPayDtls.put("Basic Pay",payroll_details.getBasicpay());
-                    fixedPayDtls.put("basicpay_e", (payroll_details.getBasicpay() - ((payroll_details.getPaiddays() * payroll_details.getBasicpay()) / 100)));
-                }
-
-
-                if(payroll_details.getHra() !=null && payroll_details.getHra() >0.0)
-                {
-                    fixedPayDtls.put("HRA",payroll_details.getHra());
-                    fixedPayDtls.put("hra_e", (payroll_details.getHra() - ((payroll_details.getPaiddays() * payroll_details.getHra()) / 100)));
-                }
-
-                if(payroll_details.getConveyance() !=null && payroll_details.getConveyance() >0.0)
-                {
-                    fixedPayDtls.put("Conveyance",payroll_details.getConveyance());
-                    fixedPayDtls.put("conveyance_e", (payroll_details.getConveyance() - ((payroll_details.getPaiddays() * payroll_details.getConveyance()) / 100)));
-                }
-
-                if(payroll_details.getMedical() !=null && payroll_details.getMedical() >0.0)
-                {
-                    fixedPayDtls.put("Medical",payroll_details.getMedical());
-                    fixedPayDtls.put("medical_e", (payroll_details.getMedical() - ((payroll_details.getPaiddays() * payroll_details.getMedical()) / 100)));
-                }
-
-                HashMap<String,Double> additionalBenefits= new HashMap<String,Double>();
-                HashMap<String, Double> deductions = new HashMap<String, Double>();
-
-                if(payroll_details.getPfemployer() != null && payroll_details.getPfemployer() !=0.0)
-                {
-                    fixedPayDtls.put("pf_employer",payroll_details.getPfemployer());
-                }
-                if(payroll_details.getEsiemployer() != null && payroll_details.getEsiemployer() !=0.0)
-                {
-                    fixedPayDtls.put("ESI_employer",payroll_details.getEsiemployer());
-                }
-                if(payroll_details.getFoodallowance() != null && payroll_details.getFoodallowance() !=0.0)
-                {
-                    fixedPayDtls.put("food_Allow",payroll_details.getFoodallowance());
-                }
-                if(payroll_details.getAccomodation() != null && payroll_details.getAccomodation() !=0.0)
-                {
-                    fixedPayDtls.put("Accomodation",payroll_details.getAccomodation());
-                }
-
-
-                if(payroll_details.getPfemployee() != null && payroll_details.getPfemployee() !=0.0)
-                {
-                    fixedPayDtls.put("pf_employee",payroll_details.getPfemployee());
-                }
-                if(payroll_details.getEsiemployee() != null && payroll_details.getEsiemployee() !=0.0)
-                {
-                    fixedPayDtls.put("ESI_employee",payroll_details.getEsiemployee());
-                }
-                if(payroll_details.getTaxonemplmnt() != null && payroll_details.getTaxonemplmnt() !=0.0)
-                {
-                    fixedPayDtls.put("Tax on Employment",payroll_details.getTaxonemplmnt());
-                }
-                if(payroll_details.getTds() != null && payroll_details.getTds() !=0.0)
-                {
-                    fixedPayDtls.put("TDS",payroll_details.getTds());
-                }
-
-                int maxRows=0;
-                if(fixedPayDtls.size() > additionalBenefits.size())
-                {
-                    if(fixedPayDtls.size() > deductions.size())
-                    {
-                        maxRows = fixedPayDtls.size();
-                    }
-                    else
-                    {
-                        maxRows = deductions.size();
-                    }
-                }
-                else if (additionalBenefits.size() >=deductions.size())
-                {
-                    maxRows = additionalBenefits.size();
-                }
-
-                System.out.println("maximum fixed " +fixedPayDtls.size());
-                System.out.println("maximum add " +additionalBenefits.size());
-                System.out.println("maximum ded " +deductions.size());
-                System.out.println("maximum rows " +maxRows);
-
-                OutputStream file = new FileOutputStream(new File("out/"+ pdfName+".pdf"));
+                OutputStream file = new FileOutputStream(new File("out/" + pdfName + ".pdf"));
                 Document document = new Document(PageSize.A4);
                 document.setMargins(20, 20, 20, 20);
                 PdfWriter.getInstance(document, file);
@@ -515,602 +404,250 @@ public class controller {
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table2.addCell(cell);
 
-
-                // Generating a Set of entries
-                Set set = fixedPayDtls.entrySet();
-
-                // Displaying elements of LinkedHashMap
-                Iterator iterator = set.iterator();
-                while(iterator.hasNext()) {
-                    Map.Entry entry = (Map.Entry)iterator.next();
-                    System.out.print("Key is: "+ entry.getKey() +
-                            "& Value is: "+entry.getValue()+"\n");
+                earning = new ArrayList<>();
+                ded = new ArrayList<>();
+                bene = new ArrayList<>();
+                tempTO temp = new tempTO();
 
 
-                        System.out.println("fixed key vale" + entry.getKey());
-                        System.out.println("fixed value" + entry.getValue());
-                        cell = new PdfPCell((new Phrase(String.valueOf(entry.getKey()), fontContent)));
+                payroll_details = this.payrollRepository.findByEmpId(employee.getEmpId());
+                if (payroll_details.getBasicpay() > 0) {
+                    temp.setKey("Basic Pay");
+                    temp.setValue(payroll_details.getBasicpay().toString());
+                    earning.add(temp);
 
+                }
+                if (payroll_details.getHra() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("HRA");
+                    temp.setValue(payroll_details.getHra().toString());
+                    earning.add(temp);
+                }
+                if (payroll_details.getConveyance() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Conveyance");
+                    temp.setValue(payroll_details.getConveyance().toString());
+                    earning.add(temp);
+                }
+                if (payroll_details.getMedical() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Medical");
+                    temp.setValue(payroll_details.getMedical().toString());
+                    earning.add(temp);
+                }
+                if (payroll_details.getOthers() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Others");
+                    temp.setValue(payroll_details.getOthers().toString());
+                    earning.add(temp);
+                }
+                if (payroll_details.getFuelAllowance() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Fuel Allowance");
+                    temp.setValue(payroll_details.getFuelAllowance().toString());
+                    earning.add(temp);
+                }
+                if (payroll_details.getIncentive() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Incentive");
+                    temp.setValue(payroll_details.getIncentive().toString());
+                    earning.add(temp);
+                }
+                if (payroll_details.getPfemployer() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("PF Employer");
+                    temp.setValue(payroll_details.getPfemployer().toString());
+                    bene.add(temp);
+                }
+                if (payroll_details.getEsiemployer() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("ESI Employer");
+                    temp.setValue(payroll_details.getEsiemployer().toString());
+                    bene.add(temp);
+                }
+                if (payroll_details.getFoodallowance() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Food Allowance");
+                    temp.setValue(payroll_details.getFoodallowance().toString());
+                    bene.add(temp);
+                }
+                if (payroll_details.getAccomodation() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Accommodation");
+                    temp.setValue(payroll_details.getAccomodation().toString());
+                    bene.add(temp);
+                }
+                if (payroll_details.getFestivalbonus() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Festival Bonus");
+                    temp.setValue(payroll_details.getFestivalbonus().toString());
+                    bene.add(temp);
+                }
+                if (payroll_details.getServicereward() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Service Reward");
+                    temp.setValue(payroll_details.getServicereward().toString());
+                    bene.add(temp);
+                }
+                if (payroll_details.getLwfEmployer() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("ESI Employee");
+                    temp.setValue(payroll_details.getLwfEmployer().toString());
+                    bene.add(temp);
+                }
+                if (payroll_details.getPfemployee() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("PF Employee");
+                    temp.setValue(payroll_details.getPfemployee().toString());
+                    ded.add(temp);
+                }
+                if (payroll_details.getEsiemployee() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("ESI Employee");
+                    temp.setValue(payroll_details.getEsiemployee().toString());
+                    ded.add(temp);
+                }
+                if (payroll_details.getTaxonemplmnt() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Tax on Employment");
+                    temp.setValue(payroll_details.getTaxonemplmnt().toString());
+                    ded.add(temp);
+                }
+                if (payroll_details.getTds() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("TDS");
+                    temp.setValue(payroll_details.getTds().toString());
+                    ded.add(temp);
+                }
+                if (payroll_details.getSalaryadvance() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("Salary Advace");
+                    temp.setValue(payroll_details.getSalaryadvance().toString());
+                    ded.add(temp);
+                }
+
+                // New code added
+                int dataRow = 0;
+                dataRow = Math.max(earning.size(), ded.size());
+                dataRow = Math.max(dataRow, bene.size());
+                Double payData = 0.00;
+
+
+                Double totalEarning =0.0;
+                for (int j = 0; j < dataRow; j++) {
+                    if (j < earning.size()) {
+                        cell = new PdfPCell(new Phrase(earning.get(j).getKey(), fontContent));
                         cell.setUseVariableBorders(true);
                         cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                        cell.setPaddingBottom(5);
-                        cell.setBorderWidthTop(0);
                         cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
+                        cell.setBorderWidthRight(0);
+                        cell.setBorderWidthTop(0);
+                        cell.setPaddingBottom(4);
                         table2.addCell(cell);
-
-
-                        cell = new PdfPCell((new Phrase(String.valueOf(entry.getValue()), fontContent)));
+                        cell = new PdfPCell(new Phrase(earning.get(j).getValue() + "  ", fontContent));
                         cell.setUseVariableBorders(true);
                         cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                        cell.setPaddingBottom(5);
-                        cell.setBorderWidthTop(0);
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                         cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
+                        cell.setBorderWidthTop(0);
+                        cell.setPaddingBottom(4);
+                        table2.addCell(cell);
+                        payData = Double.parseDouble(earning.get(j).getValue())*payroll_details.getPaiddays()/Integer.parseInt(workDays);
+                        totalEarning = totalEarning+payData;
+                        payData = Math.ceil(payData);
+                        cell = new PdfPCell(new Phrase(payData.toString() + "  ", fontContent));
+                        cell.setUseVariableBorders(true);
+                        cell.setBorderWidthLeft(0);
+                        cell.setBorderWidthTop(0);
+                        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
+                        cell.setPaddingBottom(4);
                         table2.addCell(cell);
 
+                    } else {
+                        cell = new PdfPCell(new Phrase(" "));
+                        cell.setBorderWidthBottom(0);
+                        cell.setBorderWidthTop(0);
+                        cell.setColspan(3);
+                        table2.addCell(cell);
                     }
-                                  /*  System.out.println("in 540");
-                                    System.out.println("earnings key vale" + entry.getKey());
-                                    System.out.println("earnings value" + entry.getValue());
-                                    cell = new PdfPCell((new Phrase(String.valueOf(entry.getValue()), fontContent)));
-                                    cell.setUseVariableBorders(true);
-                                    cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                                    cell.setPaddingBottom(5);
-                                    cell.setBorderWidthTop(0);
-                                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                                    table2.addCell(cell);
+                    if (j < bene.size()) {
+                        cell = new PdfPCell(new Phrase(" " + bene.get(j).getKey() +  " ", fontContent));
+                        cell.setUseVariableBorders(true);
+                        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+                        cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
+                        cell.setBorderWidthTop(0);
+                        cell.setBorderWidthLeft(0);
+                        cell.setBorderWidthRight(0);
+                        cell.setPaddingBottom(4);
+                        table2.addCell(cell);
+                        cell = new PdfPCell(new Phrase(bene.get(j).getValue() + "  ", fontContent));
+                        cell.setUseVariableBorders(true);
+                        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        cell.setPaddingBottom(4);
+                        cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
+                        cell.setBorderWidthTop(0);
+                        cell.setBorderWidthRight(0);
+                        table2.addCell(cell);
 
+                    } else {
+                        cell = new PdfPCell(new Phrase(" "));
+                        cell.setBorderWidthBottom(0);
+                        cell.setBorderWidthTop(0);
+                        cell.setColspan(2);
+                        table2.addCell(cell);
+                    }
+                    if (j < ded.size()) {
+                        cell = new PdfPCell(new Phrase(" " + ded.get(j).getKey() + " ", fontContent));
+                        cell.setUseVariableBorders(true);
+                        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+                        cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
+                        cell.setPaddingBottom(4);
+                        cell.setBorderWidthTop(0);
+                        table2.addCell(cell);
+                        cell = new PdfPCell(new Phrase(ded.get(j).getValue() + " ", fontContent));
+                        cell.setUseVariableBorders(true);
+                        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+                        cell.setPaddingBottom(4);
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                        cell.setBorderWidthLeft(0);
+                        cell.setBorderWidthTop(0);
+                        cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
+                        table2.addCell(cell);
 
-                                    System.out.println("in 554");
-                                    System.out.println("additional key vale" + entry.getKey());
-                                    System.out.println("additional value" + entry.getValue());
-                                    cell = new PdfPCell((new Phrase(entry.getKey(), fontContent)));
-                                    cell.setUseVariableBorders(true);
-                                    cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                                    cell.setPaddingBottom(5);
-                                    cell.setBorderWidthTop(0);
-                                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                                    table2.addCell(cell);
+                    } else {
+                        cell = new PdfPCell(new Phrase(" "));
+                        cell.setBorderWidthBottom(0);
+                        cell.setBorderWidthTop(0);
+                        cell.setColspan(2);
+                        table2.addCell(cell);
+                    }
+                }
 
-                                    cell = new PdfPCell((new Phrase(String.valueOf(entry.getValue()), fontContent)));
-                                    cell.setUseVariableBorders(true);
-                                    cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                                    cell.setPaddingBottom(5);
-                                    cell.setBorderWidthTop(0);
-                                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                                    table2.addCell(cell);
-
-
-                                    System.out.println("in 575");
-                                    System.out.println("ded key vale" + entry.getKey());
-                                    System.out.println("ded value" + entry.getValue());
-                                    cell = new PdfPCell((new Phrase(entry.getKey(), fontContent)));
-                                    cell.setUseVariableBorders(true);
-                                    cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                                    cell.setPaddingBottom(5);
-                                    cell.setBorderWidthTop(0);
-                                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                                    table2.addCell(cell);
-
-                                    cell = new PdfPCell((new Phrase(String.valueOf(entry.getValue()), fontContent)));
-                                    cell.setUseVariableBorders(true);
-                                    cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                                    cell.setPaddingBottom(5);
-                                    cell.setBorderWidthTop(0);
-                                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                                    table2.addCell(cell);
-
-                                }*/
-
-
-
-
-                /*cell = new PdfPCell(new Phrase(" Basic Pay", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                cell.setPaddingBottom(5);
-                cell.setBorderWidthTop(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                System.out.println("before assigning value in pdf");
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getBasicpay()), fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                System.out.println(((26 * payroll_details.getBasicpay()) / 100));
-
-                HashMap<String, Double> earningsmap = new HashMap<String, Double>();
-
-
-                earningsmap.put("basicpay_e", (payroll_details.getBasicpay() - ((payroll_details.getPaiddays() * payroll_details.getBasicpay()) / 100)));
-                System.out.println("calculated basic pay earnings " + (payroll_details.getBasicpay() - ((26 * payroll_details.getBasicpay()) / 100)));
-                cell = new PdfPCell(new Phrase(String.valueOf((payroll_details.getBasicpay() - ((payroll_details.getPaiddays() * payroll_details.getBasicpay()) / 100))), fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" PF (Employer)", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthRight(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getPfemployer()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" PF (Employee)", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getPfemployee()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                //cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" HRA", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                cell.setPaddingBottom(5);
-                cell.setBorderWidthTop(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getHra()), fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-
-                earningsmap.put("hra_e", (payroll_details.getHra() - ((payroll_details.getPaiddays() * payroll_details.getHra()) / 100)));
-                System.out.println("calculated hra earnings " + (payroll_details.getHra() - ((payroll_details.getPaiddays() * payroll_details.getHra()) / 100)));
-                cell = new PdfPCell(new Phrase(String.valueOf((payroll_details.getHra() - ((payroll_details.getPaiddays() * payroll_details.getHra()) / 100))), fontContent));
-
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" ESI (Employer)", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthRight(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getEsiemployer()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" ESI (Employee)", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getEsiemployee()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                //cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" Conveyance", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                cell.setPaddingBottom(5);
-                cell.setBorderWidthTop(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getConveyance()), fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-                earningsmap.put("conveyance_e", (payroll_details.getConveyance() - ((payroll_details.getPaiddays() * payroll_details.getConveyance()) / 100)));
-                System.out.println("calculated conveyance earnings " + (payroll_details.getConveyance() - ((payroll_details.getPaiddays() * payroll_details.getConveyance()) / 100)));
-                cell = new PdfPCell(new Phrase(String.valueOf((payroll_details.getConveyance() - ((payroll_details.getPaiddays() * payroll_details.getConveyance()) / 100))), fontContent));
-
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" Food Allowance", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthRight(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getFoodallowance()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" Tax on Employment", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getTaxonemplmnt()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                //cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-
-                   cell = new PdfPCell(new Phrase(" Medical", fontContent));
-                    cell.setUseVariableBorders(true);
-                    cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                    cell.setPaddingBottom(5);
-                    cell.setBorderWidthTop(0);
-                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                    table2.addCell(cell);
-                    cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getMedical()), fontContent));
-                    cell.setUseVariableBorders(true);
-                    cell.setPaddingRight(3);
-                    cell.setBorderWidthTop(0);
-                    cell.setBorderWidthLeft(0);
-                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                    table2.addCell(cell);
-                    earningsmap.put("medical_e", (payroll_details.getMedical() - ((payroll_details.getPaiddays() * payroll_details.getMedical()) / 100)));
-                    System.out.println("calculated getMedical earnings " + (payroll_details.getMedical() - ((payroll_details.getPaiddays() * payroll_details.getMedical()) / 100)));
-                    cell = new PdfPCell(new Phrase(String.valueOf((payroll_details.getMedical() - ((payroll_details.getPaiddays() * payroll_details.getMedical()) / 100))), fontContent));
-
-                    cell.setUseVariableBorders(true);
-                    cell.setPaddingRight(3);
-                    cell.setBorderWidthTop(0);
-                    cell.setBorderWidthLeft(0);
-                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                    table2.addCell(cell);
-
-
-                cell = new PdfPCell(new Phrase(" Accommodation", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthRight(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getAccomodation()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" Labour Welfare Fund", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getLwf()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                //cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" Others", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                cell.setPaddingBottom(5);
-                cell.setBorderWidthTop(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getOthers()), fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                earningsmap.put("others_e", (payroll_details.getOthers() - ((payroll_details.getPaiddays() * payroll_details.getOthers()) / 100)));
-                System.out.println("calculated getOthers earnings " + (payroll_details.getOthers() - ((payroll_details.getPaiddays() * payroll_details.getOthers()) / 100)));
-                cell = new PdfPCell(new Phrase(String.valueOf((payroll_details.getOthers() - ((payroll_details.getPaiddays() * payroll_details.getOthers()) / 100))), fontContent));
-
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" Festival Bonus", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthRight(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getFestivalbonus()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" TDS ", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getTds()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                //cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" Fuel Allowance", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                cell.setPaddingBottom(5);
-                cell.setBorderWidthTop(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getFuelAllowance()), fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-
-                earningsmap.put("fuel_e", (payroll_details.getFuelAllowance() - ((payroll_details.getPaiddays() * payroll_details.getFuelAllowance()) / 100)));
-                System.out.println("calculated getFuelAllowance earnings " + (payroll_details.getFuelAllowance() - ((payroll_details.getPaiddays() * payroll_details.getFuelAllowance()) / 100)));
-                cell = new PdfPCell(new Phrase(String.valueOf((payroll_details.getFuelAllowance() - ((payroll_details.getPaiddays() * payroll_details.getFuelAllowance()) / 100))), fontContent));
-
-                cell.setUseVariableBorders(true);
-                cell.setPaddingRight(3);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" Service Reward", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthRight(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getServicereward()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(" Salary Advance ", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getSalaryadvance()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                //cell.setBorderWidthLeft(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                if (payroll_details.getIncentive() != null && payroll_details.getIncentive() != 0.0) {
-                    cell = new PdfPCell(new Phrase(" Incentive", fontContent));
-                    cell.setUseVariableBorders(true);
-                    cell.setVerticalAlignment(Element.ALIGN_CENTER);
-                    cell.setPaddingBottom(5);
-                    cell.setBorderWidthTop(0);
-                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                    table2.addCell(cell);
-                    cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getIncentive()), fontContent));
-                    cell.setUseVariableBorders(true);
-                    cell.setPaddingRight(3);
-                    cell.setBorderWidthTop(0);
-                    cell.setBorderWidthLeft(0);
-                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                    table2.addCell(cell);
-                    earningsmap.put("incentive_e", (payroll_details.getIncentive() - ((payroll_details.getPaiddays() * payroll_details.getIncentive()) / 100)));
-                    System.out.println("calculated getIncentive earnings " + (payroll_details.getIncentive() - ((payroll_details.getPaiddays() * payroll_details.getIncentive()) / 100)));
-                    cell = new PdfPCell(new Phrase(String.valueOf((payroll_details.getIncentive() - ((payroll_details.getPaiddays() * payroll_details.getIncentive()) / 100))), fontContent));
-
-                    cell.setUseVariableBorders(true);
-                    cell.setPaddingRight(3);
-                    cell.setBorderWidthTop(0);
-                    cell.setBorderWidthLeft(0);
-                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                    cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                    table2.addCell(cell);
-                } else {
+                for (int x = 0; x < 14 - dataRow; x++) {
                     cell = new PdfPCell(new Phrase(" "));
                     cell.setBorderWidthBottom(0);
                     cell.setBorderWidthTop(0);
                     cell.setColspan(3);
                     table2.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase(" "));
+                    cell.setBorderWidthBottom(0);
+                    cell.setBorderWidthLeft(0);
+                    cell.setBorderWidthTop(0);
+                    cell.setBorderWidthRight(0);
+                    cell.setColspan(2);
+                    table2.addCell(cell);
+
+                    cell = new PdfPCell(new Phrase(" "));
+                    cell.setBorderWidthBottom(0);
+                    cell.setBorderWidthTop(0);
+                    cell.setColspan(2);
+                    table2.addCell(cell);
                 }
-                cell = new PdfPCell(new Phrase(" Labour Welfare Fund", fontContent));
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthRight(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getLwf()), fontContent));
-                cell.setPaddingRight(3);
-                cell.setUseVariableBorders(true);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-                cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
-                table2.addCell(cell);*/
 
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(3);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(3);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(3);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(3);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(3);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthLeft(0);
-                cell.setBorderWidthTop(0);
-                cell.setBorderWidthRight(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
-
-                cell = new PdfPCell(new Phrase(" "));
-                cell.setBorderWidthBottom(0);
-                cell.setBorderWidthTop(0);
-                cell.setColspan(2);
-                table2.addCell(cell);
 
                 cell = new PdfPCell(new Phrase("Total", fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
@@ -1126,21 +663,8 @@ public class controller {
                 cell.setPaddingBottom(5);
                 table2.addCell(cell);
 
-                Double totalearnings = 0.0;
-                for (HashMap.Entry<String, Double> entry : earningsmap.entrySet()) {
-
-                    String key = entry.getKey();
-                    System.out.println("key value in map" + key);
-                    System.out.println("result value before" + entry.getValue());
-                    totalearnings += entry.getValue();
-                    System.out.println("value" + entry.getValue());
-                    System.out.println("result value after addition" + totalearnings);
-
-                }
-
-                //System.out.println("Final result value : " + totalearnings);
-
-                cell = new PdfPCell(new Phrase(String.valueOf(totalearnings), fontTableSideHdr));
+                totalEarning = Math.ceil(totalEarning);
+                cell = new PdfPCell(new Phrase(String.valueOf(totalEarning), fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 cell.setPadding(4);
@@ -1243,8 +767,7 @@ public class controller {
 
 
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "hi";

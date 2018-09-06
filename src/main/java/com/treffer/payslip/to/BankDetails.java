@@ -1,4 +1,5 @@
 package com.treffer.payslip.to;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -76,8 +77,6 @@ public class BankDetails {
     public void setPymt_Mode(String pymt_Mode) {
         this.pymt_Mode = pymt_Mode;
     }
-
-
 
 
 }

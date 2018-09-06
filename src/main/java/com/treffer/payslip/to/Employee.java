@@ -23,6 +23,28 @@ public class Employee {
 
     @Field(value = "DOB")
     private String dob;
+    @Field(value = "DOJ")
+    private String doj;
+    @Field(value = "PAN")
+    private String panno;
+    @Field(value = "UAN")
+    private String uan;
+    @Field(value = "ESI")
+    private String esi;
+    @Field(value = "AADHAAR")
+    private String aadhaar;
+    @Field(value = "bankname")
+    private String bankname;
+    @Field(value = "accnumber")
+    private String accnum;
+    @Field(value = "branch")
+    private String branch;
+    @Field(value = "fathername")
+    private String fathername;
+    @Field(value = "paiddate")
+    private String paidate;
+    @Field(value = "modeofpymt")
+    private String pymt_Mode;
 
     public String getDoj() {
         return doj;
@@ -31,12 +53,6 @@ public class Employee {
     public void setDoj(String doj) {
         this.doj = doj;
     }
-
-    @Field(value = "DOJ")
-    private String doj;
-
-    @Field(value = "PAN")
-    private String panno;
 
     public String getPanno() {
         return panno;
@@ -70,24 +86,6 @@ public class Employee {
         this.aadhaar = aadhaar;
     }
 
-    @Field(value = "UAN")
-    private String uan;
-
-    @Field(value = "ESI")
-    private String esi;
-
-    @Field(value = "AADHAAR")
-    private String aadhaar;
-
-    @Field(value = "bankname")
-    private String bankname;
-
-    @Field(value = "accnumber")
-    private String accnum;
-
-    @Field(value = "branch")
-    private String branch;
-
     public String getFathername() {
         return fathername;
     }
@@ -95,9 +93,6 @@ public class Employee {
     public void setFathername(String fathername) {
         this.fathername = fathername;
     }
-
-    @Field(value = "fathername")
-    private String fathername;
 
     public String getBankname() {
         return bankname;
@@ -139,12 +134,6 @@ public class Employee {
         this.pymt_Mode = pymt_Mode;
     }
 
-    @Field(value = "paiddate")
-    private String paidate;
-
-    @Field(value = "modeofpymt")
-    private String pymt_Mode;
-
     public String getDesgination() {
         return desgination;
     }
@@ -160,7 +149,6 @@ public class Employee {
     public void setDob(String dob) {
         this.dob = dob;
     }
-
 
 
     public String getEmpId() {
@@ -186,7 +174,6 @@ public class Employee {
     public void setEmpName(String empName) {
         this.empName = empName;
     }
-
 
 
     @Override

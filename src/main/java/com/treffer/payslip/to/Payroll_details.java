@@ -1,4 +1,5 @@
 package com.treffer.payslip.to;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -18,7 +19,44 @@ public class Payroll_details {
 
     @Field(value = "hra")
     private Double hra;
-
+    @Field(value = "noofdays")
+    private Double paiddays;
+    @Field(value = "conveyance")
+    private Double conveyance;
+    @Field(value = "medical")
+    private Double medical;
+    @Field(value = "others")
+    private Double others;
+    @Field(value = "fuelAllowance")
+    private Double fuelAllowance;
+    @Field(value = "incentive")
+    private Double incentive;
+    @Field(value = "pf_Employer")
+    private Double pfemployer;
+    @Field(value = "esi_Employer")
+    private Double esiemployer;
+    @Field(value = "foodAllowance")
+    private Double foodallowance;
+    @Field(value = "accomodation")
+    private Double accomodation;
+    @Field(value = "festivalBonus")
+    private Double festivalbonus;
+    @Field(value = "serviceReward")
+    private Double servicereward;
+    @Field(value = "lwf_Employee")
+    private Double lwfEmployee;
+    @Field(value = "lwf_Employer")
+    private Double lwfEmployer;
+    @Field(value = "pf_Employee")
+    private Double pfemployee;
+    @Field(value = "esi_Employee")
+    private Double esiemployee;
+    @Field(value = "taxOnEmplmnt")
+    private Double taxonemplmnt;
+    @Field(value = "tds")
+    private Double tds;
+    @Field(value = "salaryAdvance")
+    private Double salaryadvance;
 
     public Double getPaiddays() {
         return paiddays;
@@ -27,9 +65,6 @@ public class Payroll_details {
     public void setPaiddays(Double paiddays) {
         this.paiddays = paiddays;
     }
-
-    @Field(value = "noofdays")
-    private Double paiddays;
 
     public Double getBasicpay() {
         return basicpay;
@@ -135,14 +170,6 @@ public class Payroll_details {
         this.servicereward = servicereward;
     }
 
-    public Double getLwf() {
-        return lwf;
-    }
-
-    public void setLwf(Double lwf) {
-        this.lwf = lwf;
-    }
-
     public Double getPfemployee() {
         return pfemployee;
     }
@@ -183,58 +210,21 @@ public class Payroll_details {
         this.salaryadvance = salaryadvance;
     }
 
-    @Field(value = "conveyance")
-    private Double conveyance;
+    public Double getLwfEmployee() {
+        return lwfEmployee;
+    }
 
-    @Field(value = "medical")
-    private Double medical;
+    public void setLwfEmployee(Double lwfEmployee) {
+        this.lwfEmployee = lwfEmployee;
+    }
 
-    @Field(value = "others")
-    private Double others;
+    public Double getLwfEmployer() {
+        return lwfEmployer;
+    }
 
-    @Field(value = "fuelAllowance")
-    private Double fuelAllowance;
-
-    @Field(value = "incentive")
-    private Double incentive;
-
-
-    @Field(value = "pf_Employer")
-    private Double pfemployer;
-
-    @Field(value = "esi_Employer")
-    private Double esiemployer;
-
-    @Field(value = "foodAllowance")
-    private Double foodallowance;
-
-    @Field(value = "accomodation")
-    private Double accomodation;
-
-    @Field(value = "festivalBonus")
-    private Double festivalbonus;
-
-    @Field(value = "serviceReward")
-    private Double servicereward;
-
-    @Field(value = "lwf")
-    private Double lwf;
-
-    @Field(value = "pf_Employee")
-    private Double pfemployee;
-
-    @Field(value = "esi_Employee")
-    private Double esiemployee;
-
-    @Field(value = "taxOnEmplmnt")
-    private Double taxonemplmnt;
-
-    @Field(value = "tds")
-    private Double tds;
-
-    @Field(value = "salaryAdvance")
-    private Double salaryadvance;
-
+    public void setLwfEmployer(Double lwfEmployer) {
+        this.lwfEmployer = lwfEmployer;
+    }
 
     public String getEmpId() {
         return empId;
@@ -243,8 +233,6 @@ public class Payroll_details {
     public void setEmpId(String empId) {
         this.empId = empId;
     }
-
-
 
 
 }

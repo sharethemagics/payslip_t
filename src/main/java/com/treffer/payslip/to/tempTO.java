@@ -3,6 +3,7 @@ package com.treffer.payslip.to;
 public class tempTO {
 
     String key;
+    String value;
 
     public String getKey() {
         return key;
@@ -19,7 +20,5 @@ public class tempTO {
     public void setValue(String value) {
         this.value = value;
     }
-
-    String value;
 
 }
