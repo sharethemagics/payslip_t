@@ -20,7 +20,7 @@ public class Payroll_details {
     @Field(value = "hra")
     private Double hra;
     @Field(value = "noofdays")
-    private Double paiddays;
+    private String paiddays;
     @Field(value = "conveyance")
     private Double conveyance;
     @Field(value = "medical")
@@ -58,11 +58,11 @@ public class Payroll_details {
     @Field(value = "salaryAdvance")
     private Double salaryadvance;
 
-    public Double getPaiddays() {
+    public String getPaiddays() {
         return paiddays;
     }
 
-    public void setPaiddays(Double paiddays) {
+    public void setPaiddays(String paiddays) {
         this.paiddays = paiddays;
     }
 

@@ -22,11 +22,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.text.DecimalFormat;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.WriteResult;
+import com.mongodb.util.JSON;
 
 @RestController
 @RequestMapping("/treffer")
@@ -157,6 +167,7 @@ public class controller {
 
             for (Employee employee : this.employeeRepository.findAll()) {
                 pdfName = employee.getEmpName();
+                System.out.println(pdfName);
                 payroll_details = this.payrollRepository.findByEmpId(employee.getEmpId());
                 OutputStream file = new FileOutputStream(new File("out/" + pdfName + ".pdf"));
                 Document document = new Document(PageSize.A4);
@@ -299,7 +310,7 @@ public class controller {
                 cell.setVerticalAlignment(Element.ALIGN_CENTER);
                 cell.setBackgroundColor(lightGray);
                 table.addCell(cell);
-                cell = new PdfPCell(new Phrase(String.valueOf(payroll_details.getPaiddays()), fontContent));
+                cell = new PdfPCell(new Phrase(payroll_details.getPaiddays(), fontContent));
                 cell.setVerticalAlignment(Element.ALIGN_CENTER);
                 cell.setBackgroundColor(lightGray);
                 table.addCell(cell);
@@ -325,7 +336,7 @@ public class controller {
                 cell.setVerticalAlignment(Element.ALIGN_CENTER);
                 cell.setBackgroundColor(lightGray);
                 table.addCell(cell);
-                cell = new PdfPCell(new Phrase(employee.getPaidate(), fontContent));
+                cell = new PdfPCell(new Phrase("31/08/2018", fontContent));
                 cell.setVerticalAlignment(Element.ALIGN_CENTER);
                 cell.setBackgroundColor(lightGray);
                 table.addCell(cell);
@@ -413,116 +424,125 @@ public class controller {
                 payroll_details = this.payrollRepository.findByEmpId(employee.getEmpId());
                 if (payroll_details.getBasicpay() > 0) {
                     temp.setKey("Basic Pay");
-                    temp.setValue(payroll_details.getBasicpay().toString());
+                    System.out.println(payroll_details.getBasicpay() + " " + new DecimalFormat("##.##").format(payroll_details.getBasicpay()) + " " +
+                            String.format("%.2f", payroll_details.getBasicpay()));
+
+                    temp.setValue(String.format("%.2f", payroll_details.getBasicpay()));
                     earning.add(temp);
 
                 }
                 if (payroll_details.getHra() > 0) {
                     temp = new tempTO();
                     temp.setKey("HRA");
-                    temp.setValue(payroll_details.getHra().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getHra()));
                     earning.add(temp);
                 }
                 if (payroll_details.getConveyance() > 0) {
                     temp = new tempTO();
                     temp.setKey("Conveyance");
-                    temp.setValue(payroll_details.getConveyance().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getConveyance()));
                     earning.add(temp);
                 }
                 if (payroll_details.getMedical() > 0) {
                     temp = new tempTO();
                     temp.setKey("Medical");
-                    temp.setValue(payroll_details.getMedical().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getMedical()));
                     earning.add(temp);
                 }
                 if (payroll_details.getOthers() > 0) {
                     temp = new tempTO();
                     temp.setKey("Others");
-                    temp.setValue(payroll_details.getOthers().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getOthers()));
                     earning.add(temp);
                 }
                 if (payroll_details.getFuelAllowance() > 0) {
                     temp = new tempTO();
                     temp.setKey("Fuel Allowance");
-                    temp.setValue(payroll_details.getFuelAllowance().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getFuelAllowance()));
                     earning.add(temp);
                 }
                 if (payroll_details.getIncentive() > 0) {
                     temp = new tempTO();
                     temp.setKey("Incentive");
-                    temp.setValue(payroll_details.getIncentive().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getIncentive()));
                     earning.add(temp);
                 }
                 if (payroll_details.getPfemployer() > 0) {
                     temp = new tempTO();
                     temp.setKey("PF Employer");
-                    temp.setValue(payroll_details.getPfemployer().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getPfemployer()));
                     bene.add(temp);
                 }
                 if (payroll_details.getEsiemployer() > 0) {
                     temp = new tempTO();
                     temp.setKey("ESI Employer");
-                    temp.setValue(payroll_details.getEsiemployer().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getEsiemployer()));
                     bene.add(temp);
                 }
                 if (payroll_details.getFoodallowance() > 0) {
                     temp = new tempTO();
                     temp.setKey("Food Allowance");
-                    temp.setValue(payroll_details.getFoodallowance().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getFoodallowance()));
                     bene.add(temp);
                 }
                 if (payroll_details.getAccomodation() > 0) {
                     temp = new tempTO();
                     temp.setKey("Accommodation");
-                    temp.setValue(payroll_details.getAccomodation().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getAccomodation()));
                     bene.add(temp);
                 }
                 if (payroll_details.getFestivalbonus() > 0) {
                     temp = new tempTO();
                     temp.setKey("Festival Bonus");
-                    temp.setValue(payroll_details.getFestivalbonus().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getFestivalbonus()));
                     bene.add(temp);
                 }
                 if (payroll_details.getServicereward() > 0) {
                     temp = new tempTO();
                     temp.setKey("Service Reward");
-                    temp.setValue(payroll_details.getServicereward().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getServicereward()));
                     bene.add(temp);
                 }
                 if (payroll_details.getLwfEmployer() > 0) {
                     temp = new tempTO();
-                    temp.setKey("ESI Employee");
-                    temp.setValue(payroll_details.getLwfEmployer().toString());
+                    temp.setKey("LWF Employer");
+                    temp.setValue(String.format("%.2f", payroll_details.getLwfEmployer()));
                     bene.add(temp);
                 }
                 if (payroll_details.getPfemployee() > 0) {
                     temp = new tempTO();
                     temp.setKey("PF Employee");
-                    temp.setValue(payroll_details.getPfemployee().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getPfemployee()));
                     ded.add(temp);
                 }
                 if (payroll_details.getEsiemployee() > 0) {
                     temp = new tempTO();
                     temp.setKey("ESI Employee");
-                    temp.setValue(payroll_details.getEsiemployee().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getEsiemployee()));
                     ded.add(temp);
                 }
                 if (payroll_details.getTaxonemplmnt() > 0) {
                     temp = new tempTO();
                     temp.setKey("Tax on Employment");
-                    temp.setValue(payroll_details.getTaxonemplmnt().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getTaxonemplmnt()));
+                    ded.add(temp);
+                }
+                if (payroll_details.getLwfEmployee() > 0) {
+                    temp = new tempTO();
+                    temp.setKey("LWF Employee");
+                    temp.setValue(String.format("%.2f", payroll_details.getLwfEmployee()));
                     ded.add(temp);
                 }
                 if (payroll_details.getTds() > 0) {
                     temp = new tempTO();
                     temp.setKey("TDS");
-                    temp.setValue(payroll_details.getTds().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getTds()));
                     ded.add(temp);
                 }
                 if (payroll_details.getSalaryadvance() > 0) {
                     temp = new tempTO();
                     temp.setKey("Salary Advace");
-                    temp.setValue(payroll_details.getSalaryadvance().toString());
+                    temp.setValue(String.format("%.2f", payroll_details.getSalaryadvance()));
                     ded.add(temp);
                 }
 
@@ -532,8 +552,8 @@ public class controller {
                 dataRow = Math.max(dataRow, bene.size());
                 Double payData = 0.00;
 
-
-                Double totalEarning =0.0;
+                //bene.forEach(yy -> {System.out.println("key " + yy.getKey() + " value " + yy.getValue() + " ");});
+                Double totalEarning = 0.0;
                 for (int j = 0; j < dataRow; j++) {
                     if (j < earning.size()) {
                         cell = new PdfPCell(new Phrase(earning.get(j).getKey(), fontContent));
@@ -552,10 +572,10 @@ public class controller {
                         cell.setBorderWidthTop(0);
                         cell.setPaddingBottom(4);
                         table2.addCell(cell);
-                        payData = Double.parseDouble(earning.get(j).getValue())*payroll_details.getPaiddays()/Integer.parseInt(workDays);
-                        totalEarning = totalEarning+payData;
-                        payData = Math.ceil(payData);
-                        cell = new PdfPCell(new Phrase(payData.toString() + "  ", fontContent));
+                        payData = Double.parseDouble(earning.get(j).getValue()) * Integer.parseInt(payroll_details.getPaiddays()) / Integer.parseInt(workDays);
+                        totalEarning = totalEarning + payData;
+                        //payData = Math.ceil(payData);
+                        cell = new PdfPCell(new Phrase(String.format("%.2f",payData)+ "  ", fontContent));
                         cell.setUseVariableBorders(true);
                         cell.setBorderWidthLeft(0);
                         cell.setBorderWidthTop(0);
@@ -573,7 +593,8 @@ public class controller {
                         table2.addCell(cell);
                     }
                     if (j < bene.size()) {
-                        cell = new PdfPCell(new Phrase(" " + bene.get(j).getKey() +  " ", fontContent));
+
+                        cell = new PdfPCell(new Phrase(" " + bene.get(j).getKey() + " ", fontContent));
                         cell.setUseVariableBorders(true);
                         cell.setVerticalAlignment(Element.ALIGN_CENTER);
                         cell.setBorderColorBottom(BaseColor.LIGHT_GRAY);
@@ -596,9 +617,13 @@ public class controller {
                         cell = new PdfPCell(new Phrase(" "));
                         cell.setBorderWidthBottom(0);
                         cell.setBorderWidthTop(0);
+                        cell.setBorderWidthRight(0);
+                        cell.setBorderWidthLeft(0);
                         cell.setColspan(2);
                         table2.addCell(cell);
                     }
+
+
                     if (j < ded.size()) {
                         cell = new PdfPCell(new Phrase(" " + ded.get(j).getKey() + " ", fontContent));
                         cell.setUseVariableBorders(true);
@@ -656,15 +681,15 @@ public class controller {
                 table2.addCell(cell);
 
                 Double totalFixedAmt = payroll_details.getBasicpay() + payroll_details.getHra() + payroll_details.getConveyance() + payroll_details.getMedical() + payroll_details.getOthers() + payroll_details.getFuelAllowance() + payroll_details.getIncentive();
-                cell = new PdfPCell(new Phrase(String.valueOf(totalFixedAmt), fontTableSideHdr));
+                cell = new PdfPCell(new Phrase(String.format("%.2f",totalFixedAmt), fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 cell.setPadding(4);
                 cell.setPaddingBottom(5);
                 table2.addCell(cell);
 
-                totalEarning = Math.ceil(totalEarning);
-                cell = new PdfPCell(new Phrase(String.valueOf(totalEarning), fontTableSideHdr));
+               // totalEarning = Math.ceil(totalEarning);
+                cell = new PdfPCell(new Phrase(String.format("%.2f",totalEarning), fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 cell.setPadding(4);
@@ -673,9 +698,19 @@ public class controller {
                 cell = new PdfPCell(new Phrase("Total Addl. Benefits ", fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setPadding(4);
-
                 table2.addCell(cell);
-                cell = new PdfPCell(new Phrase("6633.00", fontTableSideHdr));
+
+                Double totalBenefits = 0.0;
+                Double tempBenefits = 0.0;
+                for (int i = 0; i < bene.size(); i++) {
+
+                    tempBenefits = Double.parseDouble(bene.get(i).getValue());
+                    totalBenefits = totalBenefits + tempBenefits;
+                //    totalBenefits = Math.ceil(totalBenefits);
+
+                }
+
+                cell = new PdfPCell(new Phrase(String.format("%.2f",totalBenefits), fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 cell.setPadding(4);
@@ -685,8 +720,17 @@ public class controller {
                 cell.setBackgroundColor(lightGray);
                 cell.setPadding(4);
 
+                Double totalDeductions = 0.0;
+                Double tempDed = 0.0;
+                for (int i = 0; i < ded.size(); i++) {
+
+                    tempDed = Double.parseDouble(ded.get(i).getValue());
+                    totalDeductions = totalDeductions + tempDed;
+                  //  totalDeductions = Math.ceil(totalDeductions);
+
+                }
                 table2.addCell(cell);
-                cell = new PdfPCell(new Phrase("1754.00", fontTableSideHdr));
+                cell = new PdfPCell(new Phrase(String.format("%.2f",totalDeductions), fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 cell.setPadding(4);
@@ -695,9 +739,6 @@ public class controller {
 
                 document.add(table2);
 
-                // PdfPTable table4 = new PdfPTable(6);
-                //table4.setWidthPercentage(100);
-
                 PdfPTable table3 = new PdfPTable(2);
                 table3.setWidths(new int[]{5, 1});
                 table3.setWidthPercentage(100);
@@ -705,9 +746,12 @@ public class controller {
                 cell = new PdfPCell(new Phrase("CTC Per Month (Total Earnings + Total Additional Benefits) ", fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setPadding(4);
-
                 table3.addCell(cell);
-                cell = new PdfPCell(new Phrase("27233.00 ", fontTableSideHdr));
+
+                Double totalCTC = 0.0;
+                totalCTC = totalEarning + totalBenefits;
+                totalCTC = Math.ceil(totalCTC);
+                cell = new PdfPCell(new Phrase(String.format("%.2f",totalCTC), fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 cell.setPadding(4);
@@ -717,7 +761,7 @@ public class controller {
                 cell.setPadding(4);
 
                 table3.addCell(cell);
-                cell = new PdfPCell(new Phrase("20600.00 ", fontTableSideHdr));
+                cell = new PdfPCell(new Phrase(String.format("%.2f",Math.ceil(totalFixedAmt)), fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 cell.setPadding(4);
@@ -727,7 +771,11 @@ public class controller {
                 cell.setBackgroundColor(lightGray);
                 cell.setPadding(4);
                 table3.addCell(cell);
-                cell = new PdfPCell(new Phrase("18846.00 ", fontTableSideHdr));
+
+                Double totalNetSalary = 0.0;
+                totalNetSalary = totalEarning - totalDeductions;
+               // totalNetSalary = Math.ceil(totalNetSalary);
+                cell = new PdfPCell(new Phrase(String.format("%.2f",Math.ceil(totalNetSalary)), fontTableSideHdr));
                 cell.setBackgroundColor(lightGray);
                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 cell.setPadding(4);
@@ -735,25 +783,7 @@ public class controller {
 
                 document.add(table3);
 
-           /* PdfPTable table4 = new PdfPTable(2);
-            table4.setWidths(new int[]{2, 4});
-            table4.setWidthPercentage(100);
-            table4.setSpacingBefore(15);
-            table4.setSpacingAfter(5);
-            cell = new PdfPCell(new Phrase("Amount in words ", fontTableSideHdr));
-            cell.setBackgroundColor(lightGray);
-            cell.setPadding(4);
-            cell.setPaddingBottom(5);
-            table4.addCell(cell);
-            cell = new PdfPCell(new Phrase(convertToIndianCurrency("18846.00"), fontTableSideHdr));
-            cell.setBackgroundColor(lightGray);
 
-            cell.setPadding(4);
-            cell.setPaddingBottom(5);
-            table4.addCell(cell);
-
-
-            document.add(table4);*/
                 document.add(Chunk.NEWLINE);
                 document.add(new Phrase(" Note : Festival Bonus and Service Rewards are paid annually\n\n", new Font(Font.FontFamily.TIMES_ROMAN, 8, 0)));
                 document.add(Chunk.NEWLINE);
@@ -764,7 +794,51 @@ public class controller {
                 document.add(preface);
                 document.close();
                 file.close();
+                // Inserting Data to Payroll Archives
 
+                MongoClient mongo = new MongoClient("localhost", 27017);
+                DB db = mongo.getDB("treffer");
+                DBCollection collection = db.getCollection("Payslip_Archives");
+
+                ///Delete All documents before running example again
+                //WriteResult result = collection.remove(new BasicDBObject());
+                //System.out.println(result.toString());
+
+
+                BasicDBObject documentValue = new BasicDBObject();
+                documentValue.put("empno",employee.getEmpId() );
+                documentValue.put("empname", employee.getEmpName());
+                documentValue.put("panno", employee.getPanno());
+
+                for(int j=0;j<earning.size();j++)
+                {
+                    documentValue.put(earning.get(j).getKey(),earning.get(j).getValue());
+
+                }
+                for(int j=0;j<bene.size();j++)
+                {
+                    documentValue.put(bene.get(j).getKey(),bene.get(j).getValue());
+
+                }
+                for(int j=0;j<ded.size();j++)
+                {
+                    documentValue.put(ded.get(j).getKey(),ded.get(j).getValue());
+
+                }
+
+                documentValue.put("CTC",totalCTC );
+                documentValue.put("fixedgross", totalFixedAmt);
+                documentValue.put("netsalary ", totalNetSalary);
+
+                String[] monthName = { "January", "February", "March", "April", "May", "June", "July",
+                        "August", "September", "October", "November", "December" };
+
+                Calendar cal = Calendar.getInstance();
+                String month = monthName[cal.get(Calendar.MONTH)];
+                documentValue.put("month ", month);
+
+
+                collection.insert(documentValue);
 
             }
         } catch (Exception e) {
@@ -772,5 +846,6 @@ public class controller {
         }
         return "hi";
     }
+
 
 }

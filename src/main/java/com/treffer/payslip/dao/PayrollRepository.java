@@ -10,4 +10,6 @@ public interface PayrollRepository extends MongoRepository<Payroll_details, Stri
 
     Payroll_details findByEmpId(String empId);
     //  Employee findByEmpId(String empId);
+
+
 }
